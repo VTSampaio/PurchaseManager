@@ -198,6 +198,53 @@ function validateForm() {
     return isValid;
 }
 
+function loadExcelItems(excelItems) {
+    // Load items from Excel into the form
+    const container = document.getElementById('itemsContainer');
+    
+    excelItems.forEach(function(itemData) {
+        addItem(); // Add a new item row
+        
+        // Get the last added item row
+        const itemRows = container.querySelectorAll('.item-card');
+        const lastRow = itemRows[itemRows.length - 1];
+        
+        // Fill in the data
+        if (lastRow) {
+            const fields = {
+                'descricao_insumos': itemData.descricao_insumos || '',
+                'qtd': itemData.qtd || '',
+                'und': itemData.und || '',
+                'periodo_locacao': itemData.periodo_locacao || '',
+                'demanda': itemData.demanda || '',
+                'data_entrega': itemData.data_entrega || '',
+                'servico_cpu': itemData.servico_cpu || '',
+                'cod_insumo': itemData.cod_insumo || '',
+                'observacoes': itemData.observacoes || ''
+            };
+            
+            Object.keys(fields).forEach(function(fieldName) {
+                const field = lastRow.querySelector(`[name*="${fieldName}"]`);
+                if (field && fields[fieldName]) {
+                    field.value = fields[fieldName];
+                }
+            });
+        }
+    });
+    
+    // Show success message
+    if (excelItems.length > 0) {
+        // Close modal if it's open
+        const modal = document.getElementById('excelModal');
+        if (modal) {
+            const bootstrapModal = bootstrap.Modal.getInstance(modal);
+            if (bootstrapModal) {
+                bootstrapModal.hide();
+            }
+        }
+    }
+}
+
 // Form submission handling
 document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('requestForm');

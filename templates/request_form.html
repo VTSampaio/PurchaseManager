@@ -201,6 +201,12 @@
     // Initialize the form when page loads
     document.addEventListener('DOMContentLoaded', function() {
         initializeRequestForm();
+        
+        // Load Excel items if available
+        {% if excel_items %}
+        const excelItems = {{ excel_items | tojson }};
+        loadExcelItems(excelItems);
+        {% endif %}
     });
 </script>
 {% endblock %}

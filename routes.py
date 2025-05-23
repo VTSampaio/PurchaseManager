@@ -39,7 +39,13 @@ def index():
 @app.route('/request')
 def request_form():
     """Purchase request form for users"""
-    return render_template('request_form.html')
+    # Get Excel items from session if available
+    excel_items = session.get('excel_items', [])
+    # Clear items from session after retrieving
+    if 'excel_items' in session:
+        del session['excel_items']
+    
+    return render_template('request_form.html', excel_items=excel_items)
 
 @app.route('/submit_request', methods=['POST'])
 def submit_request():
