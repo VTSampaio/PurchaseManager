@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block title %}Acesso Negado - Sistema de Solicitação de Compras{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-6">
+        <div class="text-center">
+            <div class="mb-4">
+                <i class="fas fa-exclamation-triangle fa-5x text-warning"></i>
+            </div>
+            <h1 class="display-4">Acesso Negado</h1>
+            <p class="lead">Você não tem permissão para acessar esta página.</p>
+            <p class="text-muted">
+                Esta área é restrita para administradores. Se você é um administrador, 
+                faça login para continuar.
+            </p>
+            
+            <div class="mt-4">
+                <a href="{{ url_for('index') }}" class="btn btn-primary me-2">
+                    <i class="fas fa-home me-2"></i>Página Inicial
+                </a>
+                <a href="{{ url_for('replit_auth.login') }}" class="btn btn-outline-secondary">
+                    <i class="fas fa-sign-in-alt me-2"></i>Login Admin
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

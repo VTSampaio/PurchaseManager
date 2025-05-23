@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+
+{% block title %}Nova Solicitação - Sistema de Solicitação de Compras{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="mb-0">
+                    <i class="fas fa-plus-circle me-2"></i>Nova Solicitação de Compra
+                </h3>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('submit_request') }}" id="requestForm">
+                    <!-- Requester Information -->
+                    <div class="mb-4">
+                        <label for="requester_name" class="form-label">
+                            <i class="fas fa-user me-1"></i>Nome do Solicitante *
+                        </label>
+                        <input type="text" 
+                               class="form-control" 
+                               id="requester_name" 
+                               name="requester_name" 
+                               required 
+                               placeholder="Digite seu nome completo">
+                    </div>
+
+                    <!-- Items Section -->
+                    <div class="mb-4">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h5 class="mb-0">
+                                <i class="fas fa-list me-2"></i>Itens Solicitados
+                            </h5>
+                            <button type="button" class="btn btn-success btn-sm" id="addItemBtn">
+                                <i class="fas fa-plus me-1"></i>Adicionar Item
+                            </button>
+                        </div>
+                        
+                        <div id="itemsContainer">
+                            <!-- Initial item will be added by JavaScript -->
+                        </div>
+                        
+                        <div id="noItemsMessage" class="text-center py-4 text-muted">
+                            <i class="fas fa-info-circle me-2"></i>
+                            Clique em "Adicionar Item" para começar
+                        </div>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary btn-lg" id="submitBtn" disabled>
+                            <i class="fas fa-paper-plane me-2"></i>Enviar Solicitação
+                        </button>
+                        <a href="{{ url_for('index') }}" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left me-2"></i>Voltar
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Instructions Card -->
+        <div class="card mt-4">
+            <div class="card-body">
+                <h6 class="card-title">
+                    <i class="fas fa-lightbulb me-2 text-warning"></i>Instruções
+                </h6>
+                <ul class="mb-0 small text-muted">
+                    <li>Preencha seu nome completo no campo "Nome do Solicitante"</li>
+                    <li>Clique em "Adicionar Item" para incluir cada produto que deseja solicitar</li>
+                    <li>Para cada item, informe o nome, quantidade e descrição (opcional)</li>
+                    <li>Você pode adicionar quantos itens precisar</li>
+                    <li>Use o botão "Remover" para excluir itens desnecessários</li>
+                    <li>Confira todos os dados antes de enviar a solicitação</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Initialize the form when page loads
+    document.addEventListener('DOMContentLoaded', function() {
+        initializeRequestForm();
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+
+{% block title %}Início - Sistema de Solicitação de Compras{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-10">
+        <!-- Hero Section -->
+        <div class="text-center mb-5">
+            <h1 class="display-4 mb-3">
+                <i class="fas fa-shopping-cart text-primary me-3"></i>
+                Sistema de Solicitação de Compras
+            </h1>
+            <p class="lead text-muted">
+                Gerencie suas solicitações de compra de forma simples e eficiente
+            </p>
+        </div>
+
+        <!-- Action Cards -->
+        <div class="row g-4">
+            <!-- User Actions -->
+            <div class="col-md-6">
+                <div class="card h-100 border-primary">
+                    <div class="card-body text-center">
+                        <div class="mb-3">
+                            <i class="fas fa-plus-circle fa-3x text-primary"></i>
+                        </div>
+                        <h4 class="card-title">Nova Solicitação</h4>
+                        <p class="card-text text-muted">
+                            Crie uma nova solicitação de compra com múltiplos itens de forma rápida e fácil.
+                        </p>
+                        <a href="{{ url_for('request_form') }}" class="btn btn-primary btn-lg">
+                            <i class="fas fa-plus me-2"></i>Criar Solicitação
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Admin Actions -->
+            <div class="col-md-6">
+                <div class="card h-100 border-secondary">
+                    <div class="card-body text-center">
+                        <div class="mb-3">
+                            <i class="fas fa-cogs fa-3x text-secondary"></i>
+                        </div>
+                        <h4 class="card-title">Painel Administrativo</h4>
+                        <p class="card-text text-muted">
+                            Acesse o painel administrativo para gerenciar todas as solicitações recebidas.
+                        </p>
+                        {% if current_user.is_authenticated %}
+                            <a href="{{ url_for('admin') }}" class="btn btn-secondary btn-lg">
+                                <i class="fas fa-cog me-2"></i>Acessar Painel
+                            </a>
+                        {% else %}
+                            <a href="{{ url_for('replit_auth.login') }}" class="btn btn-outline-secondary btn-lg">
+                                <i class="fas fa-sign-in-alt me-2"></i>Login Admin
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Features Section -->
+        <div class="row mt-5">
+            <div class="col-12">
+                <h3 class="text-center mb-4">Características do Sistema</h3>
+                <div class="row g-4">
+                    <div class="col-md-4">
+                        <div class="text-center">
+                            <i class="fas fa-list-ul fa-2x text-info mb-3"></i>
+                            <h5>Múltiplos Itens</h5>
+                            <p class="text-muted">Adicione quantos itens precisar em uma única solicitação</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="text-center">
+                            <i class="fas fa-shield-alt fa-2x text-success mb-3"></i>
+                            <h5>Seguro</h5>
+                            <p class="text-muted">Acesso administrativo protegido por autenticação</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="text-center">
+                            <i class="fas fa-mobile-alt fa-2x text-warning mb-3"></i>
+                            <h5>Responsivo</h5>
+                            <p class="text-muted">Funciona perfeitamente em qualquer dispositivo</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- User Status -->
+        {% if current_user.is_authenticated %}
+            <div class="row mt-5">
+                <div class="col-12">
+                    <div class="alert alert-info" role="alert">
+                        <i class="fas fa-user-check me-2"></i>
+                        <strong>Bem-vindo, Administrador!</strong> 
+                        Você está logado e pode acessar o painel administrativo.
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
