@@ -35,6 +35,7 @@ class OAuth(OAuthConsumerMixin, db.Model):
 class PurchaseRequest(db.Model):
     __tablename__ = 'purchase_requests'
     id = db.Column(db.Integer, primary_key=True)
+    numero_solicitacao = db.Column(db.String(20), unique=True, nullable=False)  # Número único da solicitação
     requester_name = db.Column(db.String(100), nullable=False)
     requester_email = db.Column(db.String(120), nullable=True)  # Office 365 integration
     obra_id = db.Column(db.String(50), nullable=True)
@@ -45,6 +46,21 @@ class PurchaseRequest(db.Model):
     
     # Relationship with items
     items = db.relationship('RequestItem', backref='request', lazy=True, cascade='all, delete-orphan')
+    
+    def generate_numero_solicitacao(self):
+        """Generate a unique request number"""
+        from datetime import datetime
+        now = datetime.now()
+        year = now.strftime('%Y')
+        month = now.strftime('%m')
+        
+        # Count existing requests for this month/year to get sequential number
+        count = db.session.query(PurchaseRequest).filter(
+            PurchaseRequest.created_at >= datetime(now.year, now.month, 1)
+        ).count() + 1
+        
+        # Format: SOL-YYYY-MM-NNNN (e.g., SOL-2024-05-0001)
+        return f"SOL-{year}-{month}-{count:04d}"
 
 # Purchase Request Item Model
 class RequestItem(db.Model):

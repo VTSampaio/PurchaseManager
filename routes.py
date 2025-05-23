@@ -39,14 +39,17 @@ def submit_request():
             return redirect(url_for('request_form'))
         
         # Create new purchase request with all fields
-        purchase_request = PurchaseRequest(
-            requester_name=requester_name,
-            requester_email=requester_email if requester_email else None,
-            obra_id=obra_id if obra_id else None,
-            responsavel=responsavel if responsavel else None,
-            tipo_entrega=tipo_entrega if tipo_entrega else None,
-            endereco_entrega=endereco_entrega if endereco_entrega else None
-        )
+        purchase_request = PurchaseRequest()
+        purchase_request.requester_name = requester_name
+        purchase_request.requester_email = requester_email if requester_email else None
+        purchase_request.obra_id = obra_id if obra_id else None
+        purchase_request.responsavel = responsavel if responsavel else None
+        purchase_request.tipo_entrega = tipo_entrega if tipo_entrega else None
+        purchase_request.endereco_entrega = endereco_entrega if endereco_entrega else None
+        
+        # Generate unique request number
+        purchase_request.numero_solicitacao = purchase_request.generate_numero_solicitacao()
+        
         db.session.add(purchase_request)
         db.session.flush()  # Get the ID without committing
         
@@ -101,22 +104,21 @@ def submit_request():
         
         # Add valid items to the request
         for item_data in valid_items:
-            item = RequestItem(
-                request_id=purchase_request.id,
-                descricao_insumos=item_data['descricao_insumos'],
-                qtd=item_data['qtd'],
-                und=item_data['und'],
-                periodo_locacao=item_data['periodo_locacao'] if item_data['periodo_locacao'] else None,
-                demanda=item_data['demanda'] if item_data['demanda'] else None,
-                data_entrega=item_data['data_entrega'],
-                servico_cpu=item_data['servico_cpu'] if item_data['servico_cpu'] else None,
-                cod_insumo=item_data['cod_insumo'] if item_data['cod_insumo'] else None,
-                observacoes=item_data['observacoes'] if item_data['observacoes'] else None
-            )
+            item = RequestItem()
+            item.request_id = purchase_request.id
+            item.descricao_insumos = item_data['descricao_insumos']
+            item.qtd = item_data['qtd']
+            item.und = item_data['und']
+            item.periodo_locacao = item_data['periodo_locacao'] if item_data['periodo_locacao'] else None
+            item.demanda = item_data['demanda'] if item_data['demanda'] else None
+            item.data_entrega = item_data['data_entrega']
+            item.servico_cpu = item_data['servico_cpu'] if item_data['servico_cpu'] else None
+            item.cod_insumo = item_data['cod_insumo'] if item_data['cod_insumo'] else None
+            item.observacoes = item_data['observacoes'] if item_data['observacoes'] else None
             db.session.add(item)
         
         db.session.commit()
-        flash('Solicitação enviada com sucesso!', 'success')
+        flash(f'Solicitação enviada com sucesso! Número: {purchase_request.numero_solicitacao}', 'success')
         return redirect(url_for('index'))
         
     except Exception as e:
