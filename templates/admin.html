@@ -78,9 +78,20 @@
                             {% endif %}
                         </div>
                         <div>
-                            <span class="badge bg-info">{{ request.items|length }} item(ns)</span>
+                            <span class="badge bg-info me-2">{{ request.items|length }} item(ns)</span>
+                            
+                            <!-- Status Update Form -->
+                            <form method="POST" action="{{ url_for('update_request_status', request_id=request.id) }}" class="d-inline me-2">
+                                <select name="status" class="form-select form-select-sm d-inline w-auto" onchange="this.form.submit()">
+                                    <option value="Pendente" {{ 'selected' if request.status == 'Pendente' else '' }}>Pendente</option>
+                                    <option value="Em Análise" {{ 'selected' if request.status == 'Em Análise' else '' }}>Em Análise</option>
+                                    <option value="Atendida" {{ 'selected' if request.status == 'Atendida' else '' }}>Atendida</option>
+                                    <option value="Cancelada" {{ 'selected' if request.status == 'Cancelada' else '' }}>Cancelada</option>
+                                </select>
+                            </form>
+                            
                             <form method="POST" action="{{ url_for('delete_request', request_id=request.id) }}" 
-                                  class="d-inline ms-2"
+                                  class="d-inline"
                                   onsubmit="return confirm('Tem certeza que deseja excluir esta solicitação?')">
                                 <button type="submit" class="btn btn-outline-danger btn-sm">
                                     <i class="fas fa-trash"></i>
