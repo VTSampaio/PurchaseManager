@@ -23,11 +23,56 @@
                         <div>
                             <h5 class="mb-0">
                                 <i class="fas fa-user me-2"></i>{{ request.requester_name }}
+                                {% if request.requester_email %}
+                                    <small class="text-muted">{{ request.requester_email }}</small>
+                                {% endif %}
                             </h5>
-                            <small class="text-muted">
-                                <i class="fas fa-calendar me-1"></i>
-                                {{ request.created_at.strftime('%d/%m/%Y às %H:%M') }}
-                            </small>
+                            <div class="row mt-2">
+                                <div class="col-md-6">
+                                    <small class="text-muted">
+                                        <i class="fas fa-calendar me-1"></i>
+                                        {{ request.created_at.strftime('%d/%m/%Y às %H:%M') }}
+                                    </small>
+                                </div>
+                                {% if request.obra_id %}
+                                <div class="col-md-6">
+                                    <small class="text-muted">
+                                        <i class="fas fa-building me-1"></i>
+                                        Obra: {{ request.obra_id }}
+                                    </small>
+                                </div>
+                                {% endif %}
+                            </div>
+                            {% if request.responsavel or request.tipo_entrega %}
+                            <div class="row mt-1">
+                                {% if request.responsavel %}
+                                <div class="col-md-6">
+                                    <small class="text-muted">
+                                        <i class="fas fa-user-tie me-1"></i>
+                                        Responsável: {{ request.responsavel }}
+                                    </small>
+                                </div>
+                                {% endif %}
+                                {% if request.tipo_entrega %}
+                                <div class="col-md-6">
+                                    <small class="text-muted">
+                                        <i class="fas fa-truck me-1"></i>
+                                        {{ request.tipo_entrega }}
+                                    </small>
+                                </div>
+                                {% endif %}
+                            </div>
+                            {% endif %}
+                            {% if request.endereco_entrega %}
+                            <div class="row mt-1">
+                                <div class="col-12">
+                                    <small class="text-muted">
+                                        <i class="fas fa-map-marker-alt me-1"></i>
+                                        {{ request.endereco_entrega }}
+                                    </small>
+                                </div>
+                            </div>
+                            {% endif %}
                         </div>
                         <div>
                             <span class="badge bg-info">{{ request.items|length }} item(ns)</span>
@@ -46,22 +91,58 @@
                                 <table class="table table-sm">
                                     <thead>
                                         <tr>
-                                            <th>Item</th>
-                                            <th width="100">Quantidade</th>
-                                            <th>Descrição</th>
+                                            <th>Descrição de Insumos</th>
+                                            <th>QTD</th>
+                                            <th>UND</th>
+                                            <th>Período Locação</th>
+                                            <th>Demanda</th>
+                                            <th>Data Entrega</th>
+                                            <th>Serviço/CPU</th>
+                                            <th>Cód. Insumo</th>
+                                            <th>Observações</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         {% for item in request.items %}
                                             <tr>
                                                 <td>
-                                                    <strong>{{ item.item_name }}</strong>
+                                                    <strong>{{ item.descricao_insumos }}</strong>
                                                 </td>
                                                 <td>
-                                                    <span class="badge bg-secondary">{{ item.quantity }}</span>
+                                                    <span class="badge bg-secondary">{{ item.qtd }}</span>
                                                 </td>
                                                 <td>
-                                                    {{ item.description if item.description else '-' }}
+                                                    <span class="badge bg-info">{{ item.und }}</span>
+                                                </td>
+                                                <td>
+                                                    {{ item.periodo_locacao if item.periodo_locacao else '-' }}
+                                                </td>
+                                                <td>
+                                                    {% if item.demanda %}
+                                                        <span class="badge bg-warning">{{ item.demanda }}</span>
+                                                    {% else %}
+                                                        -
+                                                    {% endif %}
+                                                </td>
+                                                <td>
+                                                    {% if item.data_entrega %}
+                                                        {{ item.data_entrega.strftime('%d/%m/%Y') }}
+                                                    {% else %}
+                                                        -
+                                                    {% endif %}
+                                                </td>
+                                                <td>
+                                                    {{ item.servico_cpu if item.servico_cpu else '-' }}
+                                                </td>
+                                                <td>
+                                                    {% if item.cod_insumo %}
+                                                        <code>{{ item.cod_insumo }}</code>
+                                                    {% else %}
+                                                        -
+                                                    {% endif %}
+                                                </td>
+                                                <td>
+                                                    <small>{{ item.observacoes if item.observacoes else '-' }}</small>
                                                 </td>
                                             </tr>
                                         {% endfor %}

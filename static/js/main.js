@@ -22,7 +22,7 @@ function addItem() {
     // Hide no items message
     noItemsMessage.style.display = 'none';
     
-    // Create item HTML
+    // Create item HTML with new detailed fields
     const itemHtml = `
         <div class="card mb-3 item-card" data-item-id="${itemCounter}">
             <div class="card-header d-flex justify-content-between align-items-center">
@@ -36,28 +36,85 @@ function addItem() {
             <div class="card-body">
                 <div class="row">
                     <div class="col-md-6 mb-3">
-                        <label class="form-label">Nome do Item *</label>
-                        <input type="text" 
-                               class="form-control item-name" 
-                               name="item_name[]" 
-                               required 
-                               placeholder="Ex: Notebook Dell">
+                        <label class="form-label">Descrição de Insumos *</label>
+                        <textarea class="form-control item-descricao" 
+                                  name="descricao_insumos[]" 
+                                  rows="2"
+                                  required 
+                                  placeholder="Descrição detalhada do insumo"></textarea>
                     </div>
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label">Quantidade *</label>
+                    <div class="col-md-2 mb-3">
+                        <label class="form-label">QTD *</label>
                         <input type="number" 
                                class="form-control item-quantity" 
-                               name="item_quantity[]" 
-                               min="1" 
+                               name="qtd[]" 
+                               step="0.01"
+                               min="0.01" 
                                required 
                                placeholder="1">
                     </div>
-                    <div class="col-12">
-                        <label class="form-label">Descrição (Opcional)</label>
+                    <div class="col-md-2 mb-3">
+                        <label class="form-label">UND *</label>
+                        <select class="form-select" name="und[]" required>
+                            <option value="">Selecionar...</option>
+                            <option value="UN">UN - Unidade</option>
+                            <option value="M">M - Metro</option>
+                            <option value="M²">M² - Metro Quadrado</option>
+                            <option value="M³">M³ - Metro Cúbico</option>
+                            <option value="KG">KG - Quilograma</option>
+                            <option value="L">L - Litro</option>
+                            <option value="PC">PC - Peça</option>
+                            <option value="CJ">CJ - Conjunto</option>
+                            <option value="DZ">DZ - Dúzia</option>
+                            <option value="HR">HR - Hora</option>
+                            <option value="DIA">DIA - Dia</option>
+                            <option value="MÊS">MÊS - Mês</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2 mb-3">
+                        <label class="form-label">Cód. Insumo</label>
+                        <input type="text" 
+                               class="form-control" 
+                               name="cod_insumo[]" 
+                               placeholder="COD123">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3 mb-3">
+                        <label class="form-label">Período de Locação</label>
+                        <input type="text" 
+                               class="form-control" 
+                               name="periodo_locacao[]" 
+                               placeholder="Ex: 30 dias">
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label class="form-label">Demanda</label>
+                        <input type="text" 
+                               class="form-control" 
+                               name="demanda[]" 
+                               placeholder="Ex: Urgente">
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label class="form-label">Data de Entrega</label>
+                        <input type="date" 
+                               class="form-control" 
+                               name="data_entrega[]">
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label class="form-label">Serviço/CPU</label>
+                        <input type="text" 
+                               class="form-control" 
+                               name="servico_cpu[]" 
+                               placeholder="Ex: Instalação">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-12 mb-3">
+                        <label class="form-label">Observações</label>
                         <textarea class="form-control" 
-                                  name="item_description[]" 
+                                  name="observacoes[]" 
                                   rows="2" 
-                                  placeholder="Especificações técnicas, marca, modelo, etc."></textarea>
+                                  placeholder="Observações adicionais sobre o item"></textarea>
                     </div>
                 </div>
             </div>
@@ -66,9 +123,9 @@ function addItem() {
     
     itemsContainer.insertAdjacentHTML('beforeend', itemHtml);
     
-    // Focus on the new item name field
-    const newItemNameField = itemsContainer.querySelector(`[data-item-id="${itemCounter}"] .item-name`);
-    newItemNameField.focus();
+    // Focus on the new item description field
+    const newItemDescField = itemsContainer.querySelector(`[data-item-id="${itemCounter}"] .item-descricao`);
+    newItemDescField.focus();
     
     // Validate form after adding item
     validateForm();
@@ -78,8 +135,8 @@ function removeItem(itemId) {
     const itemCard = document.querySelector(`[data-item-id="${itemId}"]`);
     
     // Confirm removal if there's content
-    const itemName = itemCard.querySelector('.item-name').value;
-    if (itemName.trim() && !confirm('Tem certeza que deseja remover este item?')) {
+    const itemDesc = itemCard.querySelector('.item-descricao').value;
+    if (itemDesc.trim() && !confirm('Tem certeza que deseja remover este item?')) {
         return;
     }
     
@@ -122,10 +179,11 @@ function validateForm() {
     // Check if there are items and they are valid
     let hasValidItems = false;
     itemCards.forEach(card => {
-        const itemName = card.querySelector('.item-name').value.trim();
-        const itemQuantity = parseInt(card.querySelector('.item-quantity').value) || 0;
+        const itemDesc = card.querySelector('.item-descricao').value.trim();
+        const itemQuantity = parseFloat(card.querySelector('.item-quantity').value) || 0;
+        const itemUnit = card.querySelector('select[name="und[]"]').value;
         
-        if (itemName && itemQuantity > 0) {
+        if (itemDesc && itemQuantity > 0 && itemUnit) {
             hasValidItems = true;
         }
     });

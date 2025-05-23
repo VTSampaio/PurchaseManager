@@ -36,6 +36,11 @@ class PurchaseRequest(db.Model):
     __tablename__ = 'purchase_requests'
     id = db.Column(db.Integer, primary_key=True)
     requester_name = db.Column(db.String(100), nullable=False)
+    requester_email = db.Column(db.String(120), nullable=True)  # Office 365 integration
+    obra_id = db.Column(db.String(50), nullable=True)
+    responsavel = db.Column(db.String(100), nullable=True)
+    tipo_entrega = db.Column(db.String(50), nullable=True)
+    endereco_entrega = db.Column(db.Text, nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.now)
     
     # Relationship with items
@@ -46,6 +51,12 @@ class RequestItem(db.Model):
     __tablename__ = 'request_items'
     id = db.Column(db.Integer, primary_key=True)
     request_id = db.Column(db.Integer, db.ForeignKey('purchase_requests.id'), nullable=False)
-    item_name = db.Column(db.String(200), nullable=False)
-    quantity = db.Column(db.Integer, nullable=False)
-    description = db.Column(db.Text, nullable=True)
+    descricao_insumos = db.Column(db.String(500), nullable=False)
+    qtd = db.Column(db.Float, nullable=False)
+    und = db.Column(db.String(20), nullable=False)
+    periodo_locacao = db.Column(db.String(100), nullable=True)
+    demanda = db.Column(db.String(100), nullable=True)
+    data_entrega = db.Column(db.Date, nullable=True)
+    servico_cpu = db.Column(db.String(100), nullable=True)
+    cod_insumo = db.Column(db.String(50), nullable=True)
+    observacoes = db.Column(db.Text, nullable=True)

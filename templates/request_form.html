@@ -14,16 +14,76 @@
             <div class="card-body">
                 <form method="POST" action="{{ url_for('submit_request') }}" id="requestForm">
                     <!-- Requester Information -->
+                    <div class="row mb-4">
+                        <div class="col-md-6 mb-3">
+                            <label for="requester_name" class="form-label">
+                                <i class="fas fa-user me-1"></i>Nome do Solicitante *
+                            </label>
+                            <input type="text" 
+                                   class="form-control" 
+                                   id="requester_name" 
+                                   name="requester_name" 
+                                   required 
+                                   placeholder="Digite seu nome completo">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="requester_email" class="form-label">
+                                <i class="fas fa-envelope me-1"></i>E-mail (Office 365)
+                            </label>
+                            <input type="email" 
+                                   class="form-control" 
+                                   id="requester_email" 
+                                   name="requester_email" 
+                                   placeholder="seu.email@empresa.com">
+                        </div>
+                    </div>
+
+                    <!-- Project Information -->
+                    <div class="row mb-4">
+                        <div class="col-md-4 mb-3">
+                            <label for="obra_id" class="form-label">
+                                <i class="fas fa-building me-1"></i>ID da Obra
+                            </label>
+                            <input type="text" 
+                                   class="form-control" 
+                                   id="obra_id" 
+                                   name="obra_id" 
+                                   placeholder="Ex: OBR-2024-001">
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="responsavel" class="form-label">
+                                <i class="fas fa-user-tie me-1"></i>Responsável
+                            </label>
+                            <input type="text" 
+                                   class="form-control" 
+                                   id="responsavel" 
+                                   name="responsavel" 
+                                   placeholder="Nome do responsável">
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="tipo_entrega" class="form-label">
+                                <i class="fas fa-truck me-1"></i>Tipo de Entrega
+                            </label>
+                            <select class="form-select" id="tipo_entrega" name="tipo_entrega">
+                                <option value="">Selecionar...</option>
+                                <option value="Entrega Normal">Entrega Normal</option>
+                                <option value="Entrega Expressa">Entrega Expressa</option>
+                                <option value="Retirada no Local">Retirada no Local</option>
+                                <option value="Entrega Programada">Entrega Programada</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Delivery Address -->
                     <div class="mb-4">
-                        <label for="requester_name" class="form-label">
-                            <i class="fas fa-user me-1"></i>Nome do Solicitante *
+                        <label for="endereco_entrega" class="form-label">
+                            <i class="fas fa-map-marker-alt me-1"></i>Endereço de Entrega
                         </label>
-                        <input type="text" 
-                               class="form-control" 
-                               id="requester_name" 
-                               name="requester_name" 
-                               required 
-                               placeholder="Digite seu nome completo">
+                        <textarea class="form-control" 
+                                  id="endereco_entrega" 
+                                  name="endereco_entrega" 
+                                  rows="2" 
+                                  placeholder="Endereço completo para entrega dos itens"></textarea>
                     </div>
 
                     <!-- Items Section -->

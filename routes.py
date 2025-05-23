@@ -26,39 +26,72 @@ def request_form():
 def submit_request():
     """Handle purchase request submission"""
     try:
-        # Get requester name
+        # Get requester information
         requester_name = request.form.get('requester_name', '').strip()
+        requester_email = request.form.get('requester_email', '').strip()
+        obra_id = request.form.get('obra_id', '').strip()
+        responsavel = request.form.get('responsavel', '').strip()
+        tipo_entrega = request.form.get('tipo_entrega', '').strip()
+        endereco_entrega = request.form.get('endereco_entrega', '').strip()
         
         if not requester_name:
             flash('Nome do solicitante é obrigatório', 'error')
             return redirect(url_for('request_form'))
         
-        # Create new purchase request
-        purchase_request = PurchaseRequest(requester_name=requester_name)
+        # Create new purchase request with all fields
+        purchase_request = PurchaseRequest(
+            requester_name=requester_name,
+            requester_email=requester_email if requester_email else None,
+            obra_id=obra_id if obra_id else None,
+            responsavel=responsavel if responsavel else None,
+            tipo_entrega=tipo_entrega if tipo_entrega else None,
+            endereco_entrega=endereco_entrega if endereco_entrega else None
+        )
         db.session.add(purchase_request)
         db.session.flush()  # Get the ID without committing
         
-        # Process items
-        item_names = request.form.getlist('item_name[]')
-        item_quantities = request.form.getlist('item_quantity[]')
-        item_descriptions = request.form.getlist('item_description[]')
+        # Process items with new detailed fields
+        descricao_insumos_list = request.form.getlist('descricao_insumos[]')
+        qtd_list = request.form.getlist('qtd[]')
+        und_list = request.form.getlist('und[]')
+        periodo_locacao_list = request.form.getlist('periodo_locacao[]')
+        demanda_list = request.form.getlist('demanda[]')
+        data_entrega_list = request.form.getlist('data_entrega[]')
+        servico_cpu_list = request.form.getlist('servico_cpu[]')
+        cod_insumo_list = request.form.getlist('cod_insumo[]')
+        observacoes_list = request.form.getlist('observacoes[]')
         
         # Validate that we have at least one item
         valid_items = []
-        for i in range(len(item_names)):
-            if i < len(item_names) and i < len(item_quantities):
-                name = item_names[i].strip()
+        for i in range(len(descricao_insumos_list)):
+            if i < len(descricao_insumos_list) and i < len(qtd_list) and i < len(und_list):
+                descricao = descricao_insumos_list[i].strip()
                 try:
-                    quantity = int(item_quantities[i])
+                    quantidade = float(qtd_list[i])
                 except (ValueError, IndexError):
-                    quantity = 0
+                    quantidade = 0
                 
-                if name and quantity > 0:
-                    description = item_descriptions[i].strip() if i < len(item_descriptions) else ''
+                unidade = und_list[i].strip()
+                
+                if descricao and quantidade > 0 and unidade:
+                    from datetime import datetime
+                    data_entrega = None
+                    if i < len(data_entrega_list) and data_entrega_list[i]:
+                        try:
+                            data_entrega = datetime.strptime(data_entrega_list[i], '%Y-%m-%d').date()
+                        except ValueError:
+                            data_entrega = None
+                    
                     valid_items.append({
-                        'name': name,
-                        'quantity': quantity,
-                        'description': description
+                        'descricao_insumos': descricao,
+                        'qtd': quantidade,
+                        'und': unidade,
+                        'periodo_locacao': periodo_locacao_list[i].strip() if i < len(periodo_locacao_list) else '',
+                        'demanda': demanda_list[i].strip() if i < len(demanda_list) else '',
+                        'data_entrega': data_entrega,
+                        'servico_cpu': servico_cpu_list[i].strip() if i < len(servico_cpu_list) else '',
+                        'cod_insumo': cod_insumo_list[i].strip() if i < len(cod_insumo_list) else '',
+                        'observacoes': observacoes_list[i].strip() if i < len(observacoes_list) else ''
                     })
         
         if not valid_items:
@@ -70,9 +103,15 @@ def submit_request():
         for item_data in valid_items:
             item = RequestItem(
                 request_id=purchase_request.id,
-                item_name=item_data['name'],
-                quantity=item_data['quantity'],
-                description=item_data['description']
+                descricao_insumos=item_data['descricao_insumos'],
+                qtd=item_data['qtd'],
+                und=item_data['und'],
+                periodo_locacao=item_data['periodo_locacao'] if item_data['periodo_locacao'] else None,
+                demanda=item_data['demanda'] if item_data['demanda'] else None,
+                data_entrega=item_data['data_entrega'],
+                servico_cpu=item_data['servico_cpu'] if item_data['servico_cpu'] else None,
+                cod_insumo=item_data['cod_insumo'] if item_data['cod_insumo'] else None,
+                observacoes=item_data['observacoes'] if item_data['observacoes'] else None
             )
             db.session.add(item)
         
