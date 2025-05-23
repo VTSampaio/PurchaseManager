@@ -103,14 +103,14 @@
                         </div>
 
                         <!-- Excel Upload Section -->
-                        <div class="modal fade" id="excelModal" tabindex="-1">
-                            <div class="modal-dialog">
+                        <div class="modal fade" id="excelModal" tabindex="-1" aria-labelledby="excelModalLabel" aria-hidden="true">
+                            <div class="modal-dialog modal-lg">
                                 <div class="modal-content">
                                     <div class="modal-header">
-                                        <h5 class="modal-title">
+                                        <h5 class="modal-title" id="excelModalLabel">
                                             <i class="fas fa-file-excel me-2"></i>Upload de Itens via Excel
                                         </h5>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                     </div>
                                     <div class="modal-body">
                                         <div class="alert alert-info">
@@ -130,7 +130,7 @@
                                             </a>
                                         </div>
                                         
-                                        <form method="POST" action="{{ url_for('upload_excel') }}" enctype="multipart/form-data">
+                                        <form method="POST" action="{{ url_for('upload_excel') }}" enctype="multipart/form-data" id="excelUploadForm">
                                             <div class="mb-3">
                                                 <label for="excel_file" class="form-label">
                                                     <i class="fas fa-upload me-1"></i>Selecionar arquivo Excel
@@ -142,7 +142,7 @@
                                                 </div>
                                             </div>
                                             <div class="d-grid">
-                                                <button type="submit" class="btn btn-primary">
+                                                <button type="submit" class="btn btn-primary" id="uploadExcelBtn">
                                                     <i class="fas fa-upload me-2"></i>Carregar Itens do Excel
                                                 </button>
                                             </div>

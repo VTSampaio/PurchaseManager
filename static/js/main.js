@@ -232,14 +232,17 @@ function loadExcelItems(excelItems) {
         }
     });
     
+    // Validate form after loading items
+    validateForm();
+    
     // Show success message
     if (excelItems.length > 0) {
         // Close modal if it's open
         const modal = document.getElementById('excelModal');
         if (modal) {
-            const bootstrapModal = bootstrap.Modal.getInstance(modal);
-            if (bootstrapModal) {
-                bootstrapModal.hide();
+            const modalInstance = bootstrap.Modal.getInstance(modal);
+            if (modalInstance) {
+                modalInstance.hide();
             }
         }
     }
