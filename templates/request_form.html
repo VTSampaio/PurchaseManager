@@ -92,9 +92,64 @@
                             <h5 class="mb-0">
                                 <i class="fas fa-list me-2"></i>Itens Solicitados
                             </h5>
-                            <button type="button" class="btn btn-success btn-sm" id="addItemBtn">
-                                <i class="fas fa-plus me-1"></i>Adicionar Item
-                            </button>
+                            <div>
+                                <button type="button" class="btn btn-info btn-sm me-2" data-bs-toggle="modal" data-bs-target="#excelModal">
+                                    <i class="fas fa-file-excel me-1"></i>Upload Excel
+                                </button>
+                                <button type="button" class="btn btn-success btn-sm" id="addItemBtn">
+                                    <i class="fas fa-plus me-1"></i>Adicionar Item
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Excel Upload Section -->
+                        <div class="modal fade" id="excelModal" tabindex="-1">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">
+                                            <i class="fas fa-file-excel me-2"></i>Upload de Itens via Excel
+                                        </h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div class="alert alert-info">
+                                            <i class="fas fa-info-circle me-2"></i>
+                                            <strong>Como funciona:</strong>
+                                            <ol class="mt-2 mb-0">
+                                                <li>Baixe o template Excel</li>
+                                                <li>Preencha os dados dos itens</li>
+                                                <li>Faça upload do arquivo preenchido</li>
+                                                <li>Os itens serão carregados automaticamente no formulário</li>
+                                            </ol>
+                                        </div>
+                                        
+                                        <div class="text-center mb-3">
+                                            <a href="{{ url_for('download_template') }}" class="btn btn-outline-success">
+                                                <i class="fas fa-download me-2"></i>Baixar Template Excel
+                                            </a>
+                                        </div>
+                                        
+                                        <form method="POST" action="{{ url_for('upload_excel') }}" enctype="multipart/form-data">
+                                            <div class="mb-3">
+                                                <label for="excel_file" class="form-label">
+                                                    <i class="fas fa-upload me-1"></i>Selecionar arquivo Excel
+                                                </label>
+                                                <input type="file" class="form-control" id="excel_file" name="excel_file" 
+                                                       accept=".xlsx,.xls" required>
+                                                <div class="form-text">
+                                                    Formatos aceitos: .xlsx, .xls
+                                                </div>
+                                            </div>
+                                            <div class="d-grid">
+                                                <button type="submit" class="btn btn-primary">
+                                                    <i class="fas fa-upload me-2"></i>Carregar Itens do Excel
+                                                </button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                         
                         <div id="itemsContainer">

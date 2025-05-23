@@ -1,5 +1,9 @@
-from flask import render_template, request, redirect, url_for, flash, session
+from flask import render_template, request, redirect, url_for, flash, session, send_file, make_response
 from flask_login import current_user
+from werkzeug.utils import secure_filename
+import pandas as pd
+import os
+from io import BytesIO
 from app import app, db
 from models import PurchaseRequest, RequestItem
 from replit_auth import require_login, make_replit_blueprint
@@ -218,6 +222,128 @@ def update_item_status(item_id):
         flash(f'Erro ao atualizar status do item: {str(e)}', 'error')
     
     return redirect(url_for('admin'))
+
+@app.route('/download-template')
+def download_template():
+    """Download Excel template for bulk item upload"""
+    try:
+        # Create template data
+        template_data = {
+            'Descrição de Insumos': ['Exemplo: Cimento Portland CP II-E-32', 'Exemplo: Brita nº 1'],
+            'QTD': [50, 10],
+            'UND': ['SACO', 'M³'],
+            'Período de Locação': ['30 dias', ''],
+            'Demanda': ['Urgente', 'Normal'],
+            'Data de Entrega': ['2024-06-01', '2024-06-15'],
+            'Serviço/CPU': ['Entrega no canteiro', 'Instalação'],
+            'Cód. Insumo': ['CIM001', 'BRI002'],
+            'Observações': ['Entrega pela manhã', 'Verificar qualidade']
+        }
+        
+        # Create DataFrame
+        df = pd.DataFrame(template_data)
+        
+        # Create Excel file in memory using ExcelWriter
+        output = BytesIO()
+        with pd.ExcelWriter(output, engine='openpyxl', mode='w') as writer:
+            df.to_excel(writer, index=False, sheet_name='Itens')
+        
+        output.seek(0)
+        
+        # Send file
+        return send_file(
+            output,
+            as_attachment=True,
+            download_name='template_itens_solicitacao.xlsx',
+            mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        )
+        
+    except Exception as e:
+        flash(f'Erro ao gerar template: {str(e)}', 'error')
+        return redirect(url_for('request_form'))
+
+@app.route('/upload-excel', methods=['POST'])
+def upload_excel():
+    """Process Excel file upload with items"""
+    try:
+        if 'excel_file' not in request.files:
+            flash('Nenhum arquivo selecionado', 'error')
+            return redirect(url_for('request_form'))
+        
+        file = request.files['excel_file']
+        if file.filename == '' or file.filename is None:
+            flash('Nenhum arquivo selecionado', 'error')
+            return redirect(url_for('request_form'))
+        
+        if not file.filename.lower().endswith(('.xlsx', '.xls')):
+            flash('Por favor, envie um arquivo Excel (.xlsx ou .xls)', 'error')
+            return redirect(url_for('request_form'))
+        
+        # Read Excel file
+        df = pd.read_excel(file)
+        
+        # Validate required columns
+        required_columns = ['Descrição de Insumos', 'QTD', 'UND']
+        missing_columns = [col for col in required_columns if col not in df.columns]
+        
+        if missing_columns:
+            flash(f'Colunas obrigatórias ausentes: {", ".join(missing_columns)}', 'error')
+            return redirect(url_for('request_form'))
+        
+        # Process and validate data
+        valid_items = []
+        for index, row in df.iterrows():
+            try:
+                descricao_val = row.get('Descrição de Insumos')
+                qtd_val = row.get('QTD')
+                und_val = row.get('UND')
+                
+                if pd.notna(descricao_val) and pd.notna(qtd_val) and pd.notna(und_val):
+                    descricao = str(descricao_val).strip()
+                    qtd = float(qtd_val)
+                    und = str(und_val).strip()
+                    
+                    if descricao and qtd > 0 and und:
+                        item_data = {
+                            'descricao_insumos': descricao,
+                            'qtd': qtd,
+                            'und': und,
+                            'periodo_locacao': str(row.get('Período de Locação', '')).strip() if pd.notna(row.get('Período de Locação')) else '',
+                            'demanda': str(row.get('Demanda', '')).strip() if pd.notna(row.get('Demanda')) else '',
+                            'data_entrega': None,
+                            'servico_cpu': str(row.get('Serviço/CPU', '')).strip() if pd.notna(row.get('Serviço/CPU')) else '',
+                            'cod_insumo': str(row.get('Cód. Insumo', '')).strip() if pd.notna(row.get('Cód. Insumo')) else '',
+                            'observacoes': str(row.get('Observações', '')).strip() if pd.notna(row.get('Observações')) else ''
+                        }
+                        
+                        # Process data de entrega
+                        data_entrega_val = row.get('Data de Entrega')
+                        if pd.notna(data_entrega_val):
+                            try:
+                                from datetime import datetime
+                                if isinstance(data_entrega_val, str):
+                                    item_data['data_entrega'] = datetime.strptime(data_entrega_val, '%Y-%m-%d').date()
+                                elif hasattr(data_entrega_val, 'date'):
+                                    item_data['data_entrega'] = data_entrega_val.date()
+                            except:
+                                pass
+                        
+                        valid_items.append(item_data)
+            except Exception as e:
+                continue
+        
+        if not valid_items:
+            flash('Nenhum item válido encontrado no arquivo Excel', 'error')
+            return redirect(url_for('request_form'))
+        
+        # Store items in session to be used in form
+        session['excel_items'] = valid_items
+        flash(f'{len(valid_items)} itens carregados do Excel com sucesso!', 'success')
+        return redirect(url_for('request_form'))
+        
+    except Exception as e:
+        flash(f'Erro ao processar arquivo Excel: {str(e)}', 'error')
+        return redirect(url_for('request_form'))
 
 @app.errorhandler(404)
 def not_found(error):
