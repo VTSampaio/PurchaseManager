@@ -42,6 +42,7 @@ class PurchaseRequest(db.Model):
     responsavel = db.Column(db.String(100), nullable=True)
     tipo_entrega = db.Column(db.String(50), nullable=True)
     endereco_entrega = db.Column(db.Text, nullable=True)
+    status = db.Column(db.String(20), default='Pendente', nullable=False)  # Pendente, Em Análise, Atendida, Cancelada
     created_at = db.Column(db.DateTime, default=datetime.now)
     
     # Relationship with items
@@ -76,3 +77,4 @@ class RequestItem(db.Model):
     servico_cpu = db.Column(db.String(100), nullable=True)
     cod_insumo = db.Column(db.String(50), nullable=True)
     observacoes = db.Column(db.Text, nullable=True)
+    status_item = db.Column(db.String(20), default='Pendente', nullable=False)  # Pendente, Atendido, Cancelado

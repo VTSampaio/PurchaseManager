@@ -15,7 +15,22 @@ def make_session_permanent():
 @app.route('/')
 def index():
     """Main landing page - shows different content based on auth status"""
-    return render_template('index.html')
+    try:
+        # Get statistics for dashboard
+        total_requests = PurchaseRequest.query.count()
+        pending_requests = PurchaseRequest.query.filter_by(status='Pendente').count()
+        completed_requests = PurchaseRequest.query.filter_by(status='Atendida').count()
+        cancelled_requests = PurchaseRequest.query.filter_by(status='Cancelada').count()
+        
+        stats = {
+            'total': total_requests,
+            'pending': pending_requests,
+            'completed': completed_requests,
+            'cancelled': cancelled_requests
+        }
+        return render_template('index.html', stats=stats)
+    except Exception as e:
+        return render_template('index.html', stats=None)
 
 @app.route('/request')
 def request_form():
@@ -150,6 +165,57 @@ def delete_request(request_id):
     except Exception as e:
         db.session.rollback()
         flash(f'Erro ao excluir solicitação: {str(e)}', 'error')
+    
+    return redirect(url_for('admin'))
+
+@app.route('/minhas-solicitacoes')
+def minhas_solicitacoes():
+    """Lista todas as solicitações para usuários verificarem status"""
+    try:
+        # Get all purchase requests ordered by date
+        requests = PurchaseRequest.query.order_by(PurchaseRequest.created_at.desc()).all()
+        return render_template('minhas_solicitacoes.html', requests=requests)
+    except Exception as e:
+        flash(f'Erro ao carregar solicitações: {str(e)}', 'error')
+        return render_template('minhas_solicitacoes.html', requests=[])
+
+@app.route('/update_request_status/<int:request_id>', methods=['POST'])
+@require_login
+def update_request_status(request_id):
+    """Update request status - requires authentication"""
+    try:
+        purchase_request = PurchaseRequest.query.get_or_404(request_id)
+        new_status = request.form.get('status')
+        
+        if new_status in ['Pendente', 'Em Análise', 'Atendida', 'Cancelada']:
+            purchase_request.status = new_status
+            db.session.commit()
+            flash(f'Status da solicitação atualizado para: {new_status}', 'success')
+        else:
+            flash('Status inválido', 'error')
+    except Exception as e:
+        db.session.rollback()
+        flash(f'Erro ao atualizar status: {str(e)}', 'error')
+    
+    return redirect(url_for('admin'))
+
+@app.route('/update_item_status/<int:item_id>', methods=['POST'])
+@require_login
+def update_item_status(item_id):
+    """Update item status - requires authentication"""
+    try:
+        item = RequestItem.query.get_or_404(item_id)
+        new_status = request.form.get('status_item')
+        
+        if new_status in ['Pendente', 'Atendido', 'Cancelado']:
+            item.status_item = new_status
+            db.session.commit()
+            flash(f'Status do item atualizado para: {new_status}', 'success')
+        else:
+            flash('Status inválido', 'error')
+    except Exception as e:
+        db.session.rollback()
+        flash(f'Erro ao atualizar status do item: {str(e)}', 'error')
     
     return redirect(url_for('admin'))
 

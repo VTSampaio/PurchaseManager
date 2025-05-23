@@ -2,15 +2,15 @@
 let itemCounter = 0;
 
 function initializeRequestForm() {
-    // Add the first item automatically
-    addItem();
-    
-    // Setup event listeners
+    // Setup event listeners - don't add item automatically
     document.getElementById('addItemBtn').addEventListener('click', addItem);
     
     // Validate form on change
     document.getElementById('requestForm').addEventListener('input', validateForm);
     document.getElementById('requestForm').addEventListener('change', validateForm);
+    
+    // Initial validation
+    validateForm();
 }
 
 function addItem() {

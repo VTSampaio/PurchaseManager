@@ -1,0 +1,227 @@
+{% extends "base.html" %}
+
+{% block title %}Minhas Solicitações - Sistema de Solicitação de Compras{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>
+        <i class="fas fa-list-check me-2"></i>Minhas Solicitações
+    </h2>
+    <div>
+        <a href="{{ url_for('request_form') }}" class="btn btn-primary">
+            <i class="fas fa-plus me-2"></i>Nova Solicitação
+        </a>
+    </div>
+</div>
+
+{% if requests %}
+    <div class="row">
+        {% for request in requests %}
+            <div class="col-12 mb-4">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="row align-items-center">
+                            <div class="col-md-6">
+                                <div class="d-flex align-items-center">
+                                    <span class="badge bg-primary me-3 fs-6">{{ request.numero_solicitacao }}</span>
+                                    <div>
+                                        <h5 class="mb-0">{{ request.requester_name }}</h5>
+                                        <small class="text-muted">
+                                            <i class="fas fa-calendar me-1"></i>
+                                            {{ request.created_at.strftime('%d/%m/%Y às %H:%M') }}
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 text-end">
+                                {% if request.status == 'Pendente' %}
+                                    <span class="badge bg-warning fs-6">{{ request.status }}</span>
+                                {% elif request.status == 'Em Análise' %}
+                                    <span class="badge bg-info fs-6">{{ request.status }}</span>
+                                {% elif request.status == 'Atendida' %}
+                                    <span class="badge bg-success fs-6">{{ request.status }}</span>
+                                {% elif request.status == 'Cancelada' %}
+                                    <span class="badge bg-danger fs-6">{{ request.status }}</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <!-- Additional request info -->
+                        {% if request.obra_id or request.responsavel %}
+                        <div class="row mt-2">
+                            {% if request.obra_id %}
+                            <div class="col-md-6">
+                                <small class="text-muted">
+                                    <i class="fas fa-building me-1"></i>
+                                    Obra: {{ request.obra_id }}
+                                </small>
+                            </div>
+                            {% endif %}
+                            {% if request.responsavel %}
+                            <div class="col-md-6">
+                                <small class="text-muted">
+                                    <i class="fas fa-user-tie me-1"></i>
+                                    Responsável: {{ request.responsavel }}
+                                </small>
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="card-body">
+                        {% if request.items %}
+                            <h6 class="mb-3">
+                                <i class="fas fa-boxes me-2"></i>Itens Solicitados ({{ request.items|length }})
+                            </h6>
+                            <div class="table-responsive">
+                                <table class="table table-sm">
+                                    <thead>
+                                        <tr>
+                                            <th>Descrição</th>
+                                            <th>QTD</th>
+                                            <th>UND</th>
+                                            <th>Data Entrega</th>
+                                            <th>Status</th>
+                                            <th>Observações</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for item in request.items %}
+                                            <tr>
+                                                <td>
+                                                    <strong>{{ item.descricao_insumos }}</strong>
+                                                    {% if item.cod_insumo %}
+                                                        <br><small class="text-muted">Cód: {{ item.cod_insumo }}</small>
+                                                    {% endif %}
+                                                </td>
+                                                <td>
+                                                    <span class="badge bg-secondary">{{ item.qtd }}</span>
+                                                </td>
+                                                <td>
+                                                    <span class="badge bg-info">{{ item.und }}</span>
+                                                </td>
+                                                <td>
+                                                    {% if item.data_entrega %}
+                                                        {{ item.data_entrega.strftime('%d/%m/%Y') }}
+                                                    {% else %}
+                                                        -
+                                                    {% endif %}
+                                                </td>
+                                                <td>
+                                                    {% if item.status_item == 'Pendente' %}
+                                                        <span class="badge bg-warning">{{ item.status_item }}</span>
+                                                    {% elif item.status_item == 'Atendido' %}
+                                                        <span class="badge bg-success">{{ item.status_item }}</span>
+                                                    {% elif item.status_item == 'Cancelado' %}
+                                                        <span class="badge bg-danger">{{ item.status_item }}</span>
+                                                    {% endif %}
+                                                </td>
+                                                <td>
+                                                    <small>{{ item.observacoes if item.observacoes else '-' }}</small>
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                            
+                            <!-- Progress Summary -->
+                            <div class="mt-3">
+                                {% set total_items = request.items|length %}
+                                {% set completed_items = request.items|selectattr('status_item', 'equalto', 'Atendido')|list|length %}
+                                {% set pending_items = request.items|selectattr('status_item', 'equalto', 'Pendente')|list|length %}
+                                {% set cancelled_items = request.items|selectattr('status_item', 'equalto', 'Cancelado')|list|length %}
+                                
+                                <div class="row text-center">
+                                    <div class="col-md-3">
+                                        <small class="text-muted">Total de Itens</small>
+                                        <div class="h5 text-primary">{{ total_items }}</div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <small class="text-muted">Atendidos</small>
+                                        <div class="h5 text-success">{{ completed_items }}</div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <small class="text-muted">Pendentes</small>
+                                        <div class="h5 text-warning">{{ pending_items }}</div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <small class="text-muted">Cancelados</small>
+                                        <div class="h5 text-danger">{{ cancelled_items }}</div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Progress Bar -->
+                                {% if total_items > 0 %}
+                                <div class="mt-3">
+                                    {% set progress_percent = (completed_items / total_items * 100)|round|int %}
+                                    <div class="d-flex justify-content-between mb-1">
+                                        <span class="small">Progresso da Solicitação</span>
+                                        <span class="small">{{ progress_percent }}%</span>
+                                    </div>
+                                    <div class="progress">
+                                        <div class="progress-bar bg-success" 
+                                             style="width: {{ progress_percent }}%"></div>
+                                    </div>
+                                </div>
+                                {% endif %}
+                            </div>
+                        {% else %}
+                            <p class="text-muted mb-0">Nenhum item nesta solicitação.</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <div class="text-center py-5">
+        <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+        <h4>Nenhuma solicitação encontrada</h4>
+        <p class="text-muted">Você ainda não fez nenhuma solicitação de compra.</p>
+        <a href="{{ url_for('request_form') }}" class="btn btn-primary">
+            <i class="fas fa-plus me-2"></i>Criar primeira solicitação
+        </a>
+    </div>
+{% endif %}
+
+<!-- Summary Statistics -->
+{% if requests %}
+    <div class="row mt-5">
+        <div class="col-12">
+            <div class="card bg-dark">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-chart-pie me-2"></i>Resumo das Minhas Solicitações
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-md-6">
+                            <div class="mb-2">
+                                <i class="fas fa-file-alt fa-2x text-primary"></i>
+                            </div>
+                            <h4 class="text-primary">{{ requests|length }}</h4>
+                            <p class="text-muted mb-0">Total de Solicitações</p>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-2">
+                                <i class="fas fa-boxes fa-2x text-success"></i>
+                            </div>
+                            <h4 class="text-success">
+                                {% set total_items = 0 %}
+                                {% for req in requests %}
+                                    {% set total_items = total_items + req.items|length %}
+                                {% endfor %}
+                                {{ total_items }}
+                            </h4>
+                            <p class="text-muted mb-0">Total de Itens</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endif %}
+{% endblock %}
